@@ -1,0 +1,88 @@
+---
+title: "Prediction using Supervised ML"
+author: "Nitin Kumar"
+date: "10/20/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##  
+In this ,we are predciting the percentage of marks of anstudent based on the number of study hours.
+Importing necessary libraries
+
+
+
+
+```{r cars}
+#importing libraries
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(caTools)
+```
+
+Importing required data
+
+```{r }
+data_fortask1 <- read.csv("data.csv")
+data_fortask1
+```
+
+Graphically we will analyse the data.
+Scatter plot is used to visualise the linear relationship between the regressor and regressand.
+```{r}
+scatter.smooth(x = data_fortask1$Hours,y = data_fortask1$Scores,main = 'Scores~Hours')
+```
+Correlation is a statistical measure that suggests the level of linear independence between two variables.
+```{r}
+cor(data_fortask1$Scores,data_fortask1$Hours)
+```
+Now,we will split the dataset into training and test set.
+```{r}
+# Splitting the dataset into training set and test set
+set.seed(120)
+split <- sample.split(data_fortask1$Scores,SplitRatio = 0.80)
+training_set <- subset(data_fortask1, split == TRUE)
+training_set
+test_set <- subset(data_fortask1,split == FALSE)
+test_set
+```
+Now we will fit the linear regression model in training set.
+```{r}
+prediction_fxn <- lm(Scores~Hours,data = training_set)
+summary(prediction_fxn)
+```
+
+Now we will predict the values of test test.
+```{r}
+y_prediction <- predict(prediction_fxn,newdata = test_set)
+y_prediction
+```
+Now we will visualise the training set and test set result
+```{r}
+#Visulaisation of training set result
+ggplot()+
+  geom_point(aes(x = training_set$Hours,y =training_set$Scores),colour = 'blue')+
+  geom_line(aes(x= training_set$Hours, y = predict(prediction_fxn,newdata = training_set)),colour = 'red')+
+  ggtitle('Scores vs Hours(training set)')+
+  xlab('Hours')+
+  ylab('Scores')
+#Visulaisation of test set result
+ggplot()+
+  geom_point(aes(x = test_set$Hours,y =test_set$Scores),colour = 'blue')+
+  geom_line(aes(x= test_set$Hours, y = predict(prediction_fxn,newdata = test_set)),colour = 'red')+
+  ggtitle('Scores vs Hours(Test set)')+
+  xlab('Hours')+
+  ylab('Scores')
+```
+
+Finally we will predict the score of a student who studies for 9.25 hrs/day.
+
+```{r}
+predict(prediction_fxn,data.frame(Hours = 9.25,Scores =""))
+```
+
+Score of student who studies for 9.25 hours is 94.51845.
